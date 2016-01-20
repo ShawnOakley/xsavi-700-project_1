@@ -13,6 +13,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
 
 </head>
 
@@ -28,22 +29,52 @@
 </div>
 
 <script type="text/javascript">
-	var testFlight = [{
-    "type": "LineString",
-    // note that lat-long is used here.  leaflet itself uses long-lat
-    "coordinates": [[-73.9548030, 40.7163670], [-73.9844720, 40.7590110], [-73.9484880, 40.7728940]]
-	}];
+
+
+// Should break down the LineStrings into two separate vectors, and then assign each different styles.
+// Something to consider for animations:
+// https://gis.stackexchange.com/questions/29885/animated-lines-and-line-styles-in-javascript
+// https://dynmeth.github.io/RaphaelLayer/
+// https://gis.stackexchange.com/questions/26546/openlayers-animation-examples-and-algorithms
+// http://raphaeljs.com/
+
+	function generateGeoJsonArray(mapDataStructures){
+		var geoJsonArray = [];
+		_.each(mapDataStructures, function(dataHash){
+			var geoJsonHash = {};
+			geoJsonHash["type"] = "LineString";
+			geoJsonHash["coordinates"] = [[dataHash['home_marker']['coordinates'][1], dataHash['home_marker']['coordinates'][0]], [dataHash['intermediate_marker']['coordinates'][1], dataHash['intermediate_marker']['coordinates'][0]], [dataHash['final_marker']['coordinates'][1], dataHash['final_marker']['coordinates'][0]]];
+			geoJsonArray << geoJsonHash;
+		});
+	}
 	var myStyle = {
 	    "color": "#ff7800",
 	    "weight": 5,
 	    "opacity": 0.65
 	};
 
+	var mapDataStructures = [
+		{	title: "default",
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [40.7590110,-73.9844720],
+				message : "<b>This is Times Square.</b>"
+			},
+			final_marker : {
+				coordinates: [40.7728940,-73.9484880],
+				message : "<b>This is Times Square.</b>"
+			}
+		}
+	]
+
 	var map = L.map('map').setView([40.7163670,-73.9548030], 13);
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
 	    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
 	    maxZoom: 18,
-	    id: 'mapbox.streets',
+	    id: 'mapbox.satellite',
 	    accessToken: 'pk.eyJ1Ijoic2hhd25vYWtsZXkiLCJhIjoiY2lqbTkzeGlrMDBhdXVmbHg0Z2Zzczl1YiJ9.rdTmbpwH0YTdD79RfXCd7w'
 	}).addTo(map);
 
