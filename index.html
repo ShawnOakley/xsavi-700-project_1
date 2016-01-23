@@ -20,7 +20,23 @@
 <body>
 <div class="container-fluid">
 	<div class="row">
-	<div class="col-xs-2" id="select-menu"></div>
+	<div class="col-xs-2" id="select-menu">
+		<div class="row">
+			<button onclick="drawMap(geoJsonArray, notificationArray, 0)">Bloodlines</button>
+		</div>
+		<div class="row">
+			<button onclick="drawMap(geoJsonArray, notificationArray, 1)">Leftovers</button>
+		</div>
+		<div class="row">
+			<button onclick="drawMap(geoJsonArray, notificationArray, 2)">The Knick</button>
+		</div>
+		<div class="row">
+			<button onclick="drawMap(geoJsonArray, notificationArray, 3)">Ash vs. Evil Dead</button>
+		</div>
+		<div class="row">
+			<button onclick="drawMap(geoJsonArray, notificationArray, 4)">The Affair</button>
+		</div>
+	</div>
 	<div class="col-xs-10" id="display-panel">
 		<div id="text-box"></div>
 		<div id="map"></div>
@@ -38,6 +54,84 @@
 // https://gis.stackexchange.com/questions/26546/openlayers-animation-examples-and-algorithms
 // http://raphaeljs.com/
 
+	var mapDataStructures = [
+		{	title: "Bloodlines",
+			type: 'LineString',
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show, Bloodlines.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [24.9242940,-80.6278360],
+				message : "<b>Bloodlines was filmed in Islamorada, Florida.</b>"
+			},
+			final_marker : {
+				coordinates: [24.5557000,-81.7825990],
+				message : "<b>Bloodlines depicts Monroe Country, Florida.</b>"
+			}
+		},
+		{	title: "Leftovers",
+			type: 'LineString',
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show, Leftovers.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [41.1220190,-73.7948520],
+				message : "<b>Leftovers was filmed in Westchester County.</b>"
+			},
+			final_marker : {
+				coordinates: [43.1230600,-78.7994400],
+				message : "<b>Leftovers depicts Mapleton, NY.</b>"
+			}
+		},
+		{	title: "The Knick",
+			type: 'LineString',
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show, The Knick.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [40.7150330,-73.9842720],
+				message : "<b>The Knick was filmed in the Lower East Side.</b>"
+			},
+			final_marker : {
+				coordinates: [40.8182430,-73.9527370],
+				message : "<b>The Knick depicts Harlem. (Note that this is the location of the ACTUAL knickerbocker hospital.  The one in the show is in an invented location on the Lower East Side)</b>"
+			}
+		},
+		{	title: "Ash vs. Evil Dead",
+			type: 'LineString',
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show, Ash vs. Evil Dead.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [-40.9005570,174.8859710],
+				message : "<b>Ash vs. Evil Dead was filmed in New Zealand.</b>"
+			},
+			final_marker : {
+				coordinates: [46.3549980,-85.5095590],
+				message : "<b>Ash vs. Evil Dead depicts the Upper peninsula of Michigan.</b>"
+			}
+		},
+		{	title: "The Affair",
+			type: 'LineString',
+			home_marker : {
+				coordinates: [40.7163670,-73.9548030],
+				message : "<b>This is my apartment, where I watched the show, The Affair.</b>"
+			},
+			intermediate_marker : {
+				coordinates: [41.0383,-71.9506],
+				message : "<b>The Affair depicts Montauk, NY.</b>"
+			},
+			final_marker : {
+				coordinates: [41.0383,-71.9506],
+				message : "<b>The Affair depicts Montauk, NY.</b>"
+			}
+		},
+	];
+
 	function generateGeoJsonArray(mapDataStructures){
 		var geoJsonArray = [];
 		_.each(mapDataStructures, function(dataHash){
@@ -48,56 +142,67 @@
 		});
 		return geoJsonArray;
 	}
+
+	function generateMarkerSequence(mapDataStructures){
+		var markerSequenceArray = [];
+		_.each(mapDataStructures, function(dataHash){
+			var markerSequenceHash = {}
+			markerSequenceHash["markerCoordinates"] = [[dataHash['home_marker']['coordinates'][0], dataHash['home_marker']['coordinates'][1]], [dataHash['intermediate_marker']['coordinates'][0], dataHash['intermediate_marker']['coordinates'][1]], [dataHash['final_marker']['coordinates'][0], dataHash['final_marker']['coordinates'][1]]];
+			markerSequenceHash["notification"] = [dataHash['home_marker']['message'], dataHash['intermediate_marker']['message'], dataHash['final_marker']['message']];
+			markerSequenceArray.push(markerSequenceHash);
+		});
+		return markerSequenceArray;
+	};
+
 	var myStyle = {
 	    "color": "#ff7800",
 	    "weight": 5,
 	    "opacity": 0.65
 	};
 
-	var mapDataStructures = [
-		{	title: "default",
-			type: 'LineString',
-			home_marker : {
-				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show.</b>"
-			},
-			intermediate_marker : {
-				coordinates: [40.7590110,-73.9844720],
-				message : "<b>This is Times Square.</b>"
-			},
-			final_marker : {
-				coordinates: [40.7728940,-73.9484880],
-				message : "<b>This is Times Square.</b>"
-			}
+	var geoJsonArray = generateGeoJsonArray(mapDataStructures);
+	var notificationArray = generateMarkerSequence(mapDataStructures);
+	var map;
+	function drawMap(geoJsonArray, notificationArray, idx){
+		if (!map) {
+			map = L.map('map').setView([40.7163670,-73.9548030], 13);
+			L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			    maxZoom: 18,
+			    id: 'mapbox.satellite',
+			    accessToken: 'pk.eyJ1Ijoic2hhd25vYWtsZXkiLCJhIjoiY2lqbTkzeGlrMDBhdXVmbHg0Z2Zzczl1YiJ9.rdTmbpwH0YTdD79RfXCd7w'
+			}).addTo(map);
+
+			L.geoJson(geoJsonArray, {
+			    style: myStyle
+			}).addTo(map);
+			setTimeout(function(){
+				var home_marker = L.marker([notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]]).addTo(map);
+				home_marker.bindPopup(notificationArray[idx]['notification'][0]).openPopup();
+			},0);
+			setTimeout(function(){
+				var intermediate_marker = L.marker([notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]]).addTo(map);
+				intermediate_marker.bindPopup(notificationArray[idx]['notification'][1]).openPopup();
+			},4500);
+			setTimeout(function(){
+				var final_marker = L.marker([notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]]).addTo(map);
+				final_marker.bindPopup(notificationArray[idx]['notification'][2]).openPopup();
+			},9000);
+		} else {
+			setTimeout(function(){
+				var home_marker = L.marker([notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]]).addTo(map);
+				home_marker.bindPopup(notificationArray[idx]['notification'][0]).openPopup();
+			},0);
+			setTimeout(function(){
+				var intermediate_marker = L.marker([notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]]).addTo(map);
+				intermediate_marker.bindPopup(notificationArray[idx]['notification'][1]).openPopup();
+			},4500);
+			setTimeout(function(){
+				var final_marker = L.marker([notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]]).addTo(map);
+				final_marker.bindPopup(notificationArray[idx]['notification'][2]).openPopup();
+			},9000);
 		}
-	];
-
-	var testFlight = generateGeoJsonArray(mapDataStructures);
-	console.log(testFlight);
-
-	var map = L.map('map').setView([40.7163670,-73.9548030], 13);
-	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-	    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-	    maxZoom: 18,
-	    id: 'mapbox.satellite',
-	    accessToken: 'pk.eyJ1Ijoic2hhd25vYWtsZXkiLCJhIjoiY2lqbTkzeGlrMDBhdXVmbHg0Z2Zzczl1YiJ9.rdTmbpwH0YTdD79RfXCd7w'
-	}).addTo(map);
-
-	L.geoJson(testFlight, {
-	    style: myStyle
-	}).addTo(map);
-	setTimeout(function(){
-		var home_marker = L.marker([40.7163670,-73.9548030]).addTo(map);
-		home_marker.bindPopup("<b>This is my apartment, where I watched the show.</b>").openPopup();
-	},750);
-	setTimeout(function(){
-		var intermediate_marker = L.marker([40.7590110,-73.9844720]).addTo(map);
-		intermediate_marker.bindPopup("<b>This is Times Square.</b>").openPopup();
-	},1500);
-	setTimeout(function(){
-		var final_marker = L.marker([40.7728940,-73.9484880]).addTo(map);
-		final_marker.bindPopup("<b>This is where I used to live.</b>").openPopup();
-	},3000);
+	}
 
 </script>
 </body>
