@@ -44,8 +44,9 @@
 			var geoJsonHash = {};
 			geoJsonHash["type"] = "LineString";
 			geoJsonHash["coordinates"] = [[dataHash['home_marker']['coordinates'][1], dataHash['home_marker']['coordinates'][0]], [dataHash['intermediate_marker']['coordinates'][1], dataHash['intermediate_marker']['coordinates'][0]], [dataHash['final_marker']['coordinates'][1], dataHash['final_marker']['coordinates'][0]]];
-			geoJsonArray << geoJsonHash;
+			geoJsonArray.push(geoJsonHash);
 		});
+		return geoJsonArray;
 	}
 	var myStyle = {
 	    "color": "#ff7800",
@@ -55,6 +56,7 @@
 
 	var mapDataStructures = [
 		{	title: "default",
+			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
 				message : "<b>This is my apartment, where I watched the show.</b>"
@@ -68,7 +70,10 @@
 				message : "<b>This is Times Square.</b>"
 			}
 		}
-	]
+	];
+
+	var testFlight = generateGeoJsonArray(mapDataStructures);
+	console.log(testFlight);
 
 	var map = L.map('map').setView([40.7163670,-73.9548030], 13);
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
