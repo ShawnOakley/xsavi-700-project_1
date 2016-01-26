@@ -18,29 +18,26 @@
 </head>
 
 <body>
-<div class="container-fluid">
-	<div class="row">
-	<div class="col-xs-2" id="select-menu">
-		<div class="row">
-			<button onclick="drawMap(geoJsonArray, notificationArray, 0)">Bloodlines</button>
+<div class="row bg-primary map-background">
+	<div class="col-md-2" id="select-menu">
+		<div class="row button-container">
+			<button class="btn btn-info btn-block" onclick="drawMap(geoJsonArray, notificationArray, 0)">Bloodlines</button>
 		</div>
-		<div class="row">
-			<button onclick="drawMap(geoJsonArray, notificationArray, 1)">Leftovers</button>
+		<div class="row button-container">
+			<button class="btn btn-info  btn-block" onclick="drawMap(geoJsonArray, notificationArray, 1)">Leftovers</button>
 		</div>
-		<div class="row">
-			<button onclick="drawMap(geoJsonArray, notificationArray, 2)">The Knick</button>
+		<div class="row button-container">
+			<button class="btn btn-info  btn-block" onclick="drawMap(geoJsonArray, notificationArray, 2)">The Knick</button>
 		</div>
-		<div class="row">
-			<button onclick="drawMap(geoJsonArray, notificationArray, 3)">Ash vs. Evil Dead</button>
+		<div class="row button-container">
+			<button class="btn btn-info  btn-block" onclick="drawMap(geoJsonArray, notificationArray, 3)">Ash vs. Evil Dead</button>
 		</div>
-		<div class="row">
-			<button onclick="drawMap(geoJsonArray, notificationArray, 4)">The Affair</button>
+		<div class="row button-container">
+			<button class="btn btn-info  btn-block" onclick="drawMap(geoJsonArray, notificationArray, 4)">The Affair</button>
 		</div>
 	</div>
-	<div class="col-xs-10" id="display-panel">
-		<div id="text-box"></div>
+	<div class="col-md-10" id="display-panel">
 		<div id="map"></div>
-	</div>
 	</div>
 </div>
 
@@ -59,7 +56,7 @@
 			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show, Bloodlines.</b>"
+				message : "<b>This is my apartment, where I watched the show, Bloodlines, on Wednesday January 20th at 9 PM.</b>"
 			},
 			intermediate_marker : {
 				coordinates: [24.9242940,-80.6278360],
@@ -74,7 +71,7 @@
 			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show, Leftovers.</b>"
+				message : "<b>This is my apartment, where I watched the show, Leftovers, on Thursday January 21st at 10 PM.</b>"
 			},
 			intermediate_marker : {
 				coordinates: [41.1220190,-73.7948520],
@@ -89,7 +86,7 @@
 			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show, The Knick.</b>"
+				message : "<b>This is my apartment, where I watched the show, The Knick, on Saturday January 23rd at 2 PM.</b>"
 			},
 			intermediate_marker : {
 				coordinates: [40.7150330,-73.9842720],
@@ -104,7 +101,7 @@
 			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show, Ash vs. Evil Dead.</b>"
+				message : "<b>This is my apartment, where I watched the show, Ash vs. Evil Dead, on Saturday January 23rd at 3 PM.</b>"
 			},
 			intermediate_marker : {
 				coordinates: [-40.9005570,174.8859710],
@@ -119,11 +116,11 @@
 			type: 'LineString',
 			home_marker : {
 				coordinates: [40.7163670,-73.9548030],
-				message : "<b>This is my apartment, where I watched the show, The Affair.</b>"
+				message : "<b>This is my apartment, where I watched the show, The Affair, on Saturday January 23rd at 5 PM.</b>"
 			},
 			intermediate_marker : {
 				coordinates: [41.0383,-71.9506],
-				message : "<b>The Affair depicts Montauk, NY.</b>"
+				message : "<b>The Affair was filmed in Montauk, NY.</b>"
 			},
 			final_marker : {
 				coordinates: [41.0383,-71.9506],
@@ -177,27 +174,33 @@
 			    style: myStyle
 			}).addTo(map);
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]));
 				var home_marker = L.marker([notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]]).addTo(map);
 				home_marker.bindPopup(notificationArray[idx]['notification'][0]).openPopup();
 			},0);
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]));
 				var intermediate_marker = L.marker([notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]]).addTo(map);
 				intermediate_marker.bindPopup(notificationArray[idx]['notification'][1]).openPopup();
 			},4500);
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]));
 				var final_marker = L.marker([notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]]).addTo(map);
 				final_marker.bindPopup(notificationArray[idx]['notification'][2]).openPopup();
 			},9000);
 		} else {
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]));
 				var home_marker = L.marker([notificationArray[idx]['markerCoordinates'][0][0],notificationArray[idx]['markerCoordinates'][0][1]]).addTo(map);
 				home_marker.bindPopup(notificationArray[idx]['notification'][0]).openPopup();
 			},0);
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]));
 				var intermediate_marker = L.marker([notificationArray[idx]['markerCoordinates'][1][0],notificationArray[idx]['markerCoordinates'][1][1]]).addTo(map);
 				intermediate_marker.bindPopup(notificationArray[idx]['notification'][1]).openPopup();
 			},4500);
 			setTimeout(function(){
+				map.panTo(new L.LatLng(notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]));
 				var final_marker = L.marker([notificationArray[idx]['markerCoordinates'][2][0],notificationArray[idx]['markerCoordinates'][2][1]]).addTo(map);
 				final_marker.bindPopup(notificationArray[idx]['notification'][2]).openPopup();
 			},9000);
